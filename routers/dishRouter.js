@@ -1,15 +1,17 @@
 const express = require('express')
-var bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const Dishes = require('../models/dishes')
+var bodyParser = require('body-parser')
+
 const dishRouter = express.Router();
 
 dishRouter.use(bodyParser.json());
 // Handling dish
 dishRouter.route('/')
     .get((req, res, next) => {
-        Dishes.find({})
+        Dishes.find({}).exec()
             .then(dishes => {
+                console.log(dishes)
                 res.statusCode === 200
                 res.setHeader('Content-Type', 'application/json');
                 res.json(dishes)
@@ -34,12 +36,12 @@ dishRouter.route('/')
         res.send('Put Not Allowed')
     }).
     delete((req, res, next) => {
-        Dishes.remove(req.body)
-            .then(res => {
+        Dishes.remove({})
+            .then(result => {
                 console.log('Dish Deleted');
                 res.statusCode === 200
                 res.setHeader('Content-Type', 'application/json');
-                res.json(res)
+                res.json(result)
             }, error => { next(error) }).
             catch(error => {
                 next(error)

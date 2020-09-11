@@ -8,7 +8,7 @@ const dishRouter = require('./routers/dishRouter')
 const promotionRouter = require('./routers/promoRouter')
 const leaderRouter = require('./routers/leaderRouter')
 
-const url = 'mongodb://localhost:27017/confusion'
+const url = 'mongodb://127.0.0.1:27017/confusion';
 const connect = mongoose.connect(url);
 
 connect.then(db => {
