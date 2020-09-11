@@ -75,10 +75,10 @@ dishRouter.route('/:dishId')
     }).
     delete((req, res, next) => {
         Dishes.findByIdAndRemove(req.params.dishId)
-            .then(res => {
+            .then(result => {
                 res.statusCode === 200
                 res.setHeader('Content-Type', 'application/json');
-                res.json(res)
+                res.json(result)
             }, error => { next(error) }).
             catch(error => {
                 next(error)
