@@ -6,6 +6,10 @@ const promotionRouter = require('./routers/promoRouter')
 const leaderRouter = require('./routers/leaderRouter');
 const { Buffer } = require('buffer');
 const CookieParser = require('cookie-parser');
+const Session = require('express-session');
+const FileStore = require('session-file-store')(Session);
+
+
 const url = 'mongodb://127.0.0.1:27017/confusion';
 const connect = mongoose.connect(url);
 
@@ -18,14 +22,19 @@ connect.then(db => {
 const app = express()
 const port = 3000
 //adding cookie
-app.use(CookieParser('12345-12345-12345-12345'));
-
+      //app.use(CookieParser('12345-12345-12345-12345'));
+app.use(Session({
+  name:"session-id",
+  store: new FileStore(),
+  resave :false ,
+  secret : "12345-12345-12345-12345",
+  saveUninitialized : false
+}))
 //Basic auhentication before allow routes
 function auth(req, res, next) {
-  console.log(req.headers);
-  console.log(req.signedCookies);
+  console.log(req.session);
 
-  if (!req.signedCookies.user) {
+  if (!req.session.user) {
     var authHeaders = req.headers.authorization;
 
     if (!authHeaders) {
@@ -40,7 +49,8 @@ function auth(req, res, next) {
     var user = auth[0];
     var pass = auth[1];
     if (user === 'admin' && pass === 'admin') {
-      res.cookie('user', 'admin', { signed: true })
+     // res.cookie('user', 'admin', { signed: true })
+      req.session.user = 'admin';
       next() //authorized
     } else {
       var error = new Error('Your Are Not Authenticated');
@@ -49,7 +59,7 @@ function auth(req, res, next) {
       next(error);
     }
   }
-  else if (req.signedCookies.user === "admin") {
+  else if (req.session.user === "admin") {
     next();
   } else {
     var error = new Error('Your Are Not Authenticated');
