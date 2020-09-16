@@ -44,4 +44,4 @@ router.get('/logout', (req, res) => {
     }
 })
 
-module.exports = userRouter;
+module.exports = router;

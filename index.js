@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const dishRouter = require('./routers/dishRouter')
 const promotionRouter = require('./routers/promoRouter')
 const leaderRouter = require('./routers/leaderRouter');
-const usersRouter = require('./routers/users');
+const router = require('./routers/users');
 const Session = require('express-session');
 const FileStore = require('session-file-store')(Session);
 var Passport = require('passport');
@@ -30,10 +30,10 @@ app.use(Session({
   saveUninitialized : false
 }))
 
-app.user(Passport.initialize());
-app.user(Passport.session());
+app.use(Passport.initialize());
+app.use(Passport.session());
 
-app.use('/users', usersRouter);
+app.use('/users', router);
 
 //Basic auhentication before allow routes
 function auth(req, res, next) {
