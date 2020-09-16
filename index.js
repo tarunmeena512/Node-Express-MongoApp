@@ -5,11 +5,10 @@ const dishRouter = require('./routers/dishRouter')
 const promotionRouter = require('./routers/promoRouter')
 const leaderRouter = require('./routers/leaderRouter');
 const usersRouter = require('./routers/users');
-const { Buffer } = require('buffer');
-const CookieParser = require('cookie-parser');
 const Session = require('express-session');
 const FileStore = require('session-file-store')(Session);
-
+var Passport = require('passport');
+var authenticate = require('./authenticate');
 
 const url = 'mongodb://127.0.0.1:27017/confusion';
 const connect = mongoose.connect(url);
@@ -23,8 +22,6 @@ connect.then(db => {
 const app = express()
 const port = 3000
 
-//adding cookie
-      //app.use(CookieParser('12345-12345-12345-12345'));
 app.use(Session({
   name:"session-id",
   store: new FileStore(),
@@ -33,26 +30,24 @@ app.use(Session({
   saveUninitialized : false
 }))
 
+app.user(Passport.initialize());
+app.user(Passport.session());
+
 app.use('/users', usersRouter);
 
 //Basic auhentication before allow routes
 function auth(req, res, next) {
 
-  if (!req.session.user) {
-      var error = new Error('Your Are Not Authenticated');
-      res.setHeader('WWW-Authenticate', 'Basic')
-      res.status = 401;
-      return  next(error)
-  }
-  else if (req.session.user === "authenticate") {
-    next();
-  } else {
+  if (!req.user) {
     var error = new Error('Your Are Not Authenticated');
-    res.status = 401;
+    res.status = 403;
     return next(error)
-
+  }
+  else {
+    next()
   }
 }
+
 app.use(auth);
 //Basic auhentication before allow routes
 
