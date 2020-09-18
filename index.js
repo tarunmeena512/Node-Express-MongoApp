@@ -8,13 +8,13 @@ const router = require('./routers/users');
 const Session = require('express-session');
 const FileStore = require('session-file-store')(Session);
 var Passport = require('passport');
-var authenticate = require('./authenticate');
+var config = require('./config');
 
-const url = 'mongodb://127.0.0.1:27017/confusion';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
 connect.then(db => {
-  console.log('DB connected!!');
+  console.log('DB connected!!'+db);
 }, error => {
   console.log('error' + error);
 })
@@ -22,35 +22,9 @@ connect.then(db => {
 const app = express()
 const port = 3000
 
-app.use(Session({
-  name:"session-id",
-  store: new FileStore(),
-  resave :false ,
-  secret : "12345-12345-12345-12345",
-  saveUninitialized : false
-}))
-
 app.use(Passport.initialize());
-app.use(Passport.session());
 
 app.use('/users', router);
-
-//Basic auhentication before allow routes
-function auth(req, res, next) {
-
-  if (!req.user) {
-    var error = new Error('Your Are Not Authenticated');
-    res.status = 403;
-    return next(error)
-  }
-  else {
-    next()
-  }
-}
-
-app.use(auth);
-//Basic auhentication before allow routes
-
 app.use('/dishes', dishRouter);
 app.use('/promotions', promotionRouter);
 app.use('/leaders', leaderRouter);
