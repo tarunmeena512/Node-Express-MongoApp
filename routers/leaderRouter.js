@@ -6,7 +6,7 @@ const leaderRouter = express.Router();
 leaderRouter.use(bodyParser.json());
 
 leaderRouter.route('/')
-    .get(authenticate.verifyUser(),(req, res, next) => {
+    .get(authenticate.verifyUser,(req, res, next) => {
         Leaders.find({}).exec()
         .then(leader => {
             console.log(leader)
@@ -18,7 +18,7 @@ leaderRouter.route('/')
             next(error)
         })
     }).
-    post(authenticate.verifyUser(),(req, res, next) => {
+    post(authenticate.verifyUser,(req, res, next) => {
         Leaders.create(req.body)
         .then(leader => {
             console.log('Leader Created');
@@ -30,10 +30,10 @@ leaderRouter.route('/')
             next(error)
         })
     }).
-    put(authenticate.verifyUser(),(req, res, next) => {
+    put(authenticate.verifyUser,(req, res, next) => {
         res.send('Put Not Allowed')
     }).
-    delete(authenticate.verifyUser(),(req, res, next) => {
+    delete(authenticate.verifyUser,(req, res, next) => {
         Leaders.remove({})
             .then(result => {
                 console.log('Leaders Deleted');
@@ -47,7 +47,7 @@ leaderRouter.route('/')
     });
 //handling LeaderID
 leaderRouter.route('/:leaderId')
-    .get(authenticate.verifyUser(),(req, res, next) => {
+    .get(authenticate.verifyUser,(req, res, next) => {
         Leaders.findById(req.params.leaderId)
             .then(leader => {
                 res.statusCode === 200
@@ -58,10 +58,10 @@ leaderRouter.route('/:leaderId')
                 next(error)
             })
     }).
-    post(authenticate.verifyUser(),(req, res, next) => {
+    post(authenticate.verifyUser,(req, res, next) => {
         res.send('Post Not allowed');
     }).
-    put(authenticate.verifyUser(),(req, res, next) => {
+    put(authenticate.verifyUser,(req, res, next) => {
         Leaders.findByIdAndUpdate(req.params.leaderId, {
             $set: req.body
         }, { new: true })
@@ -74,7 +74,7 @@ leaderRouter.route('/:leaderId')
                 next(error)
             })
     }).
-    delete(authenticate.verifyUser(),(req, res, next) => {
+    delete(authenticate.verifyUser,(req, res, next) => {
         Leaders.findByIdAndRemove(req.params.leaderId)
             .then(result => {
                 res.statusCode === 200

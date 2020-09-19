@@ -6,7 +6,7 @@ const promoRouter = express.Router();
 promoRouter.use(bodyParser.json());
 
 promoRouter.route('/')
-    .get(authenticate.verifyUser(),(req, res, next) => {
+    .get(authenticate.verifyUser,(req, res, next) => {
         Promotion.find({}).exec()
         .then(promotion => {
             console.log(promotion)
@@ -18,7 +18,7 @@ promoRouter.route('/')
             next(error)
         })
     }).
-    post(authenticate.verifyUser(),(req, res, next) => {
+    post(authenticate.verifyUser,(req, res, next) => {
         Promotion.create(req.body)
         .then(promotion => {
             console.log('promotion Created');
@@ -30,10 +30,10 @@ promoRouter.route('/')
             next(error)
         })
     }).
-    put(authenticate.verifyUser(),(req, res, next) => {
+    put(authenticate.verifyUser,(req, res, next) => {
         res.send('Put Not Allowed')
     }).
-    delete(authenticate.verifyUser(),(req, res, next) => {
+    delete(authenticate.verifyUser,(req, res, next) => {
         Promotion.remove({})
             .then(result => {
                 console.log('Promotions Deleted');
@@ -47,7 +47,7 @@ promoRouter.route('/')
     });
 //handling promotionId
 promoRouter.route('/:promotionId')
-    .get(authenticate.verifyUser(),(req, res, next) => {
+    .get(authenticate.verifyUser,(req, res, next) => {
         Promotion.findById(req.params.promotionId)
             .then(promotion => {
                 res.statusCode === 200
@@ -58,10 +58,10 @@ promoRouter.route('/:promotionId')
                 next(error)
             })
     }).
-    post(authenticate.verifyUser(),(req, res, next) => {
+    post(authenticate.verifyUser,(req, res, next) => {
         res.send('Post Not allowed');
     }).
-    put(authenticate.verifyUser(),(req, res, next) => {
+    put(authenticate.verifyUser,(req, res, next) => {
         Promotion.findByIdAndUpdate(req.params.promotionId, {
             $set: req.body
         }, { new: true })
@@ -74,7 +74,7 @@ promoRouter.route('/:promotionId')
                 next(error)
             })
     }).
-    delete(authenticate.verifyUser(),(req, res, next) => {
+    delete(authenticate.verifyUser,(req, res, next) => {
         Promotion.findByIdAndRemove(req.params.promotionId)
             .then(result => {
                 res.statusCode === 200
