@@ -9,6 +9,24 @@ const userRouter = express.Router();
 
 userRouter.use(bodyParser.json());
 
+dishRouter.route('/')
+    .get(authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
+      if (req && req.user && req.user.admin) {
+        User.find({}).populate('comments.author')
+          .then(user => {
+            res.statusCode === 200
+            res.setHeader('Content-Type', 'application/json');
+            res.json(user)
+          }, error => { next(error) }).
+          catch(error => {
+            next(error)
+          })
+      }
+      else {
+        res.statusCode = 403;
+        res.end('You are not authorized to perform this operation!');
+      }
+    });
 
 userRouter.post('/signup', (req, res, next) => {
     User.register(new User({ username: req.body.username }),
