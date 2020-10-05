@@ -9,7 +9,7 @@ const userRouter = express.Router();
 
 userRouter.use(bodyParser.json());
 
-dishRouter.route('/')
+userRouter.route('/')
     .get(authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
       if (req && req.user && req.user.admin) {
         User.find({}).populate('comments.author')
