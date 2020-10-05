@@ -9,7 +9,8 @@ dishRouter.use(bodyParser.json());
 // Handling dish
 dishRouter.route('/')
     .get(authenticate.verifyUser,(req, res, next) => {
-        Dishes.find({}).populate('comments.author')
+         if(req && req.user && req.user.admin){
+            Dishes.find({}).populate('comments.author')
             .then(dishes => {
                 res.statusCode === 200
                 res.setHeader('Content-Type', 'application/json');
@@ -18,6 +19,10 @@ dishRouter.route('/')
             catch(error => {
                 next(error)
             })
+        }else{
+            res.statusCode = 403;
+            res.end('You Are not authorized!!!');
+        }
     }).
     post(authenticate.verifyUser,(req, res, next) => {
         Dishes.create(req.body)
