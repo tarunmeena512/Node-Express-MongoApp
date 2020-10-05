@@ -9,7 +9,6 @@ dishRouter.use(bodyParser.json());
 // Handling dish
 dishRouter.route('/')
     .get(authenticate.verifyUser,(req, res, next) => {
-         if(req && req.user && req.user.admin){
             Dishes.find({}).populate('comments.author')
             .then(dishes => {
                 res.statusCode === 200
@@ -19,37 +18,51 @@ dishRouter.route('/')
             catch(error => {
                 next(error)
             })
+    }).
+    post(authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
+        if (req && req.user && req.user.admin) {
+            Dishes.create(req.body)
+                .then(dish => {
+                    console.log('Dish Created');
+                    res.statusCode === 201
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json(dish)
+                }, error => { next(error) }).
+                catch(error => {
+                    next(error)
+                })
+        } else {
+            res.statusCode = 403;
+            res.end('You are not authorized to perform this operation!');
+        }
+      
+    }).
+    put(authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
+        if (req && req.user && req.user.admin) {
+            res.send('Put Not Allowed');
         }else{
             res.statusCode = 403;
-            res.end('You Are not authorized!!!');
+            res.end('You are not authorized to perform this operation!');
         }
+       
     }).
-    post(authenticate.verifyUser,(req, res, next) => {
-        Dishes.create(req.body)
-            .then(dish => {
-                console.log('Dish Created');
-                res.statusCode === 201
-                res.setHeader('Content-Type', 'application/json');
-                res.json(dish)
-            }, error => { next(error) }).
-            catch(error => {
-                next(error)
-            })
-    }).
-    put(authenticate.verifyUser,(req, res, next) => {
-        res.send('Put Not Allowed')
-    }).
-    delete(authenticate.verifyUser,(req, res, next) => {
-        Dishes.remove({})
-            .then(result => {
-                console.log('Dish Deleted');
-                res.statusCode === 200
-                res.setHeader('Content-Type', 'application/json');
-                res.json(result)
-            }, error => { next(error) }).
-            catch(error => {
-                next(error)
-            })
+    delete(authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
+        if (req && req.user && req.user.admin) {
+            Dishes.remove({})
+                .then(result => {
+                    console.log('Dish Deleted');
+                    res.statusCode === 200
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json(result)
+                }, error => { next(error) }).
+                catch(error => {
+                    next(error)
+                })
+        } else {
+            res.statusCode = 403;
+            res.end('You are not authorized to perform this operation!');
+        }
+       
     });
 // Handling dishId
 dishRouter.route('/:dishId')
@@ -64,21 +77,28 @@ dishRouter.route('/:dishId')
                 next(error)
             })
     }).
-    put(authenticate.verifyUser,(req, res, next) => {
-        Dishes.findByIdAndUpdate(req.params.dishId, {
-            $set: req.body
-        }, { new: true })
-            .then(dish => {
-                res.statusCode === 200
-                res.setHeader('Content-Type', 'application/json');
-                res.json(dish)
-            }, error => { next(error) }).
-            catch(error => {
-                next(error)
-            })
+    put(authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
+        if (req && req.user && req.user.admin) {
+            Dishes.findByIdAndUpdate(req.params.dishId, {
+                $set: req.body
+            }, { new: true })
+                .then(dish => {
+                    res.statusCode === 200
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json(dish)
+                }, error => { next(error) }).
+                catch(error => {
+                    next(error)
+                })
+        }else{
+            res.statusCode = 403;
+            res.end('You are not authorized to perform this operation!');
+        }
+      
     }).
-    delete(authenticate.verifyUser,(req, res, next) => {
-        Dishes.findByIdAndRemove(req.params.dishId)
+    delete(authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
+        if (req && req.user && req.user.admin) {
+            Dishes.findByIdAndRemove(req.params.dishId)
             .then(result => {
                 res.statusCode === 200
                 res.setHeader('Content-Type', 'application/json');
@@ -86,7 +106,12 @@ dishRouter.route('/:dishId')
             }, error => { next(error) }).
             catch(error => {
                 next(error)
-            })
+            }) 
+        }else{
+            res.statusCode = 403;
+            res.end('You are not authorized to perform this operation!');
+        }
+      
     });
 // Handling Comments
 dishRouter.route('/:dishId/comments')
@@ -136,27 +161,32 @@ dishRouter.route('/:dishId/comments')
         res.end('PUT operation not supported on /dishes/'
             + req.params.dishId + '/comments');
     })
-    .delete(authenticate.verifyUser,(req, res, next) => {
-        Dishes.findById(req.params.dishId)
-            .then((dish) => {
-                if (dish != null) {
-                    for (var i = (dish.comments.length - 1); i >= 0; i--) {
-                        dish.comments.id(dish.comments[i]._id).remove();
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+        if (req && req.user && req.user.admin) {
+            Dishes.findById(req.params.dishId)
+                .then((dish) => {
+                    if (dish != null) {
+                        for (var i = (dish.comments.length - 1); i >= 0; i--) {
+                            dish.comments.id(dish.comments[i]._id).remove();
+                        }
+                        dish.save()
+                            .then((dish) => {
+                                res.statusCode = 200;
+                                res.setHeader('Content-Type', 'application/json');
+                                res.json(dish);
+                            }, (err) => next(err));
                     }
-                    dish.save()
-                        .then((dish) => {
-                            res.statusCode = 200;
-                            res.setHeader('Content-Type', 'application/json');
-                            res.json(dish);
-                        }, (err) => next(err));
-                }
-                else {
-                    err = new Error('Dish ' + req.params.dishId + ' not found');
-                    err.status = 404;
-                    return next(err);
-                }
-            }, (err) => next(err))
-            .catch((err) => next(err));
+                    else {
+                        err = new Error('Dish ' + req.params.dishId + ' not found');
+                        err.status = 404;
+                        return next(err);
+                    }
+                }, (err) => next(err))
+                .catch((err) => next(err));
+        } else {
+            res.statusCode = 403;
+            res.end('You are not authorized to perform this operation!');
+        }
     });
 // Handling Comments/commentId
 dishRouter.route('/:dishId/comments/:commentId')
