@@ -74,7 +74,6 @@ dishRouter.route('/:dishId')
                 catch(error => {
                     next(error)
                 })
-        }
     }).
     delete(authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
             Dishes.findByIdAndRemove(req.params.dishId)
@@ -85,8 +84,7 @@ dishRouter.route('/:dishId')
             }, error => { next(error) }).
             catch(error => {
                 next(error)
-            }) 
-        } 
+            })  
     });
 // Handling Comments
 dishRouter.route('/:dishId/comments')
@@ -157,7 +155,6 @@ dishRouter.route('/:dishId/comments')
                     }
                 }, (err) => next(err))
                 .catch((err) => next(err));
-        }
     });
 // Handling Comments/commentId
 dishRouter.route('/:dishId/comments/:commentId')
