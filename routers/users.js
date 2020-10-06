@@ -11,7 +11,6 @@ userRouter.use(bodyParser.json());
 
 userRouter.route('/')
     .get(authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
-      if (req && req.user && req.user.admin) {
         User.find({}).populate('comments.author')
           .then(user => {
             res.statusCode === 200
@@ -21,11 +20,6 @@ userRouter.route('/')
           catch(error => {
             next(error)
           })
-      }
-      else {
-        res.statusCode = 403;
-        res.end('You are not authorized to perform this operation!');
-      }
     });
 
 userRouter.post('/signup', (req, res, next) => {
