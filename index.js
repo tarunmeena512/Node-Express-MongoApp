@@ -6,6 +6,7 @@ const promotionRouter = require('./routers/promoRouter')
 const leaderRouter = require('./routers/leaderRouter');
 const userRouter = require('./routers/users');
 const uploadRouter = require('./routes/uploadRouter');
+var favoriteRouter = require('./routes/favoriteRouter');
 const Session = require('express-session');
 const FileStore = require('session-file-store')(Session);
 var Passport = require('passport');
@@ -30,6 +31,7 @@ app.use('/imageUpload',uploadRouter);
 app.use('/dishes', dishRouter);
 app.use('/promotions', promotionRouter);
 app.use('/leaders', leaderRouter);
+app.use('/favorites', favoriteRouter);
 
 app.use(bodyParser.json());
 
