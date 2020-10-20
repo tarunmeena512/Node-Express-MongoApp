@@ -1,16 +1,14 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
 
-var Favorite = require('../models/favorite');
-var Dish = require('../models/dishes');
-var verify = require('./verify');
+const express = require('express')
+var bodyParser = require('body-parser')
+var authenticate = require('../authenticate');
+var Favorite = require('../models/favourites');
 
 var favoriteRouter = express.Router();
 favoriteRouter.use(bodyParser.json());
 
 favoriteRouter.route('/')
-    .all(verify.verifyOrdinaryUser)
+    .all(authenticate.verifyUser)
     .get(function (req, res, next) {
         Favorite.find({'postedBy': req.decoded._doc._id})
             .populate('postedBy')
@@ -62,7 +60,6 @@ favoriteRouter.route('/')
                 }
             });
     })
-
     .
     delete(function (req, res, next) {
         Favorite.remove({'postedBy': req.decoded._doc._id}, function (err, resp) {
@@ -72,7 +69,7 @@ favoriteRouter.route('/')
     });
 
 favoriteRouter.route('/:dishId')
-    .all(verify.verifyOrdinaryUser)
+    .all(authenticate.verifyUser)
     .delete(function (req, res, next) {
 
         Favorite.find({'postedBy': req.decoded._doc._id}, function (err, favorites) {
